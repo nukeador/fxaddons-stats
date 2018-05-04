@@ -3,11 +3,9 @@ title:          fxaddon-report.py
 description:    Fetch Firefox addon users, license, strings, rating and locales for a given list
 usage:          python fetchlocales.py >> file.csv
 license:        MPL 2.0
-dependencies:   bs4
 '''
 
 import requests, zipfile, sys, json
-from bs4 import BeautifulSoup
 
 # List here all the urls for the addons you want to fetch
 addons = [
