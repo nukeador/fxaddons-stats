@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 '''
 title:          fxaddon-getstrings.py
-description:    Downloads Firefox addon English strings from both the extension and
+description:    Downloads Firefox addon strings from both the extension and
                 Mozilla Addons site description
 usage:          python fxaddon-getstrings.py
 license:        MPL 2.0
@@ -41,7 +41,7 @@ def getInfo(url):
 
     addonURL = url.replace('https://addons.mozilla.org/firefox/','')
     apiJson = requests.get(apiURL+addonURL, headers=headers)
-    addonData = apiJson.json()
+    addonData = json.loads(apiJson.text)
 
     id = addonData['slug']
     link = addonData['current_version']['files'][0]['url']
@@ -52,7 +52,7 @@ def getInfo(url):
     return {
         'link': link,
         'id': str(id),
-        'title': title.encode('utf-8'),
+        'title': title,
         'description': description,
         'summary': summary,
     }
@@ -87,14 +87,18 @@ for a in addons:
         messagesFile = '_locales/en_US/messages.json'
     else:
         messagesFile = None
-        print 'Error: No English strings found'
+        print 'Error: No English strings found for ' + addonInfo['title']
 
+    # We will extract all locales and move English strings to the parent folder
     if messagesFile:
-        xpifile.extract(messagesFile, destinationFolder)
+        for file in xpifile.namelist():
+            if file.startswith('_locales'):
+                xpifile.extract(file, destinationFolder)
+
         os.rename(destinationFolder + '/' + messagesFile, destinationFolder + '/messages.json')
         os.removedirs(destinationFolder + '/' + messagesFile.replace('messages.json', ''))
 
-    # Storing the strings from AMO
+    # Storing the English strings from AMO
     listingInfo = {
         'name': {
             'message': addonInfo['title']
@@ -106,6 +110,7 @@ for a in addons:
             'message': addonInfo['summary']
         }
     }
+
     listingInfo = json.dumps(listingInfo, indent=4, ensure_ascii=False).encode('utf8')
 
     with open(destinationFolder + '/amo-listing.json', 'wb') as f:

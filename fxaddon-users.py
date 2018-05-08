@@ -34,7 +34,7 @@ for a in addons:
     jsonData = requests.get(jsonURL, headers=headers)
 
     try:
-        jsonData = jsonData.json()
+        jsonData = json.loads(jsonData.text)
     except:
         jsonData = None
 
@@ -48,4 +48,4 @@ for a in addons:
                 output += '"Error",'
     output += '\n'
 
-print output.decode('utf8')
+print output
