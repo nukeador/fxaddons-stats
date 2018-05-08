@@ -4,7 +4,7 @@ These are a set of script to generate some reports about specific addons.
 
 ### config.py
 
-Configure here the list of addon urls and locales you want to get reports from.
+Configure here the list of `addons` urls and `locales` you want to get reports from.
 
 ### fxaddon-report.py
 

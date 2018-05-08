@@ -10,6 +10,7 @@ addons = [
 ]
 
 # Locales names to fetch from stats json
+# Exact names can we seen in https://addons.mozilla.org/firefox/addon/easyscreenshot/statistics/usage/languages/
 locales = [
     u'English (US) (en-us)',
     u'Deutsch (de)',
