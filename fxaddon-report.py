@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 '''
 title:          fxaddon-report.py
 description:    Fetch Firefox addon users, license, strings, rating and locales for a given list
@@ -6,17 +8,11 @@ license:        MPL 2.0
 '''
 
 import os, errno, requests, zipfile, sys, json
+import config
 
-# List here all the urls for the addons you want to fetch
-addons = [
-    'https://addons.mozilla.org/firefox/addon/easyscreenshot/',
-    'https://addons.mozilla.org/firefox/addon/flash-video-downloader/'
-]
-
-apiURL = 'https://services.addons.mozilla.org/api/v3/addons/'
-
-# Folder for temporal downloads
-tmp = 'tmp'
+addons = config.addons
+apiURL = config.apiURL
+tmp = config.tmp
 
 try:
     os.mkdir(tmp)

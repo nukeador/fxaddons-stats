@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 '''
 title:          fxaddon-getlocale.py
 description:    Downloads Firefox addon English strings from both the extension and
@@ -7,19 +9,16 @@ license:        MPL 2.0
 '''
 
 import os, errno, requests, zipfile, json
+import config
 
 # List here all the urls for the addons you want to fetch
-addons = [
-    'https://addons.mozilla.org/firefox/addon/easyscreenshot/',
-    'https://addons.mozilla.org/firefox/addon/flash-video-downloader/'
-]
-
-apiURL = 'https://services.addons.mozilla.org/api/v3/addons/'
+addons = config.addons
+apiURL = config.apiURL
 
 # Subfolder to store the string files
-folder = 'files'
+folder = config.folder
 # Folder for temporal downloads
-tmp = 'tmp'
+tmp = config.tmp
 
 try:
     os.mkdir(folder)
