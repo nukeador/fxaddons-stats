@@ -91,6 +91,8 @@ for a in addons:
 
     if messagesFile:
         xpifile.extract(messagesFile, destinationFolder)
+        os.rename(destinationFolder + '/' + messagesFile, destinationFolder + '/messages.json')
+        os.removedirs(destinationFolder + '/' + messagesFile.replace('messages.json', ''))
 
     # Storing the strings from AMO
     listingInfo = {
