@@ -5,7 +5,7 @@ usage:          python fetchlocales.py >> file.csv
 license:        MPL 2.0
 '''
 
-import requests, zipfile, sys, json
+import os, errno, requests, zipfile, sys, json
 
 # List here all the urls for the addons you want to fetch
 addons = [
@@ -14,6 +14,16 @@ addons = [
 ]
 
 apiURL = 'https://services.addons.mozilla.org/api/v3/addons/'
+
+# Folder for temporal downloads
+tmp = 'tmp'
+
+try:
+    os.mkdir(tmp)
+except OSError as exc:
+    if exc.errno != errno.EEXIST:
+        raise
+    pass
 
 # Output headers
 output = '"ID", "Name", "Users", "License", "Strings", "Rating", "Locales", "AMO description locales"\n'
@@ -59,11 +69,11 @@ for a in addons:
 
     # Downloading
     r = requests.get(link)
-    with open('addon.xpi', 'wb') as f:
+    with open(tmp + '/addon.xpi', 'wb') as f:
         f.write(r.content)
 
     # Listing xpi content and filtering _locales folder
-    xpifile = zipfile.ZipFile('addon.xpi')
+    xpifile = zipfile.ZipFile(tmp + '/addon.xpi')
 
     # Cleaning up strings to remove _locales and backslashes
     for f in filter(lambda x:'_locales/' in x, xpifile.namelist()):
@@ -83,8 +93,8 @@ for a in addons:
         messagesFile = None
 
     if messagesFile:
-        xpifile.extract(messagesFile)
-        with open(messagesFile, 'r') as json_file:
+        xpifile.extract(messagesFile, tmp)
+        with open(tmp + '/' + messagesFile, 'r') as json_file:
             try:
                 strings = str(len(json.load(json_file)))
             except ValueError, e:
