@@ -7,7 +7,8 @@ usage:          python fxaddon-users.py >> file.csv
 license:        MPL 2.0
 '''
 
-import requests, json, config
+import requests, json
+import config
 from datetime import datetime, timedelta
 
 addons = config.addons

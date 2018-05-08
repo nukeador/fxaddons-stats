@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 '''
-title:          fxaddon-getlocale.py
+title:          fxaddon-getstrings.py
 description:    Downloads Firefox addon English strings from both the extension and
                 Mozilla Addons site description
-usage:          python fxaddon-getlocale.py
+usage:          python fxaddon-getstrings.py
 license:        MPL 2.0
 '''
 
