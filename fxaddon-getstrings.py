@@ -59,15 +59,29 @@ def getInfo(url):
 
 def listInfoStore(locale, addonInfo, folder):
     # Storing the English strings from AMO
+    # If not found, we'll use empty
+    try:
+        title = addonInfo['title'][locale]
+    except KeyError, e:
+        title = ""
+    try:
+        description = addonInfo['description'][locale]
+    except KeyError, e:
+        description = ""
+    try:
+        summary = addonInfo['summary'][locale]
+    except KeyError, e:
+        summary = ""
+
     listingInfo = {
         'name': {
-            'message': addonInfo['title'][locale]
+            'message': title
         },
         'description': {
-            'message': addonInfo['description'][locale]
+            'message': description
         },
         'summary': {
-            'message': addonInfo['summary'][locale]
+            'message': summary
         }
     }
 
@@ -114,7 +128,7 @@ for a in addons:
         messagesFile = '_locales/en_US/messages.json'
     else:
         messagesFile = None
-        print 'Error: No English strings found for ' + addonInfo['title']
+        print 'Error: No English strings found for ' + addonInfo['title']['en-US']
 
     # We will extract all locales and move English strings to the parent folder
     if messagesFile:
@@ -130,7 +144,14 @@ for a in addons:
     # Storing existing localizations from AMO listing
     # For each locale we create a json in the folder
     for key, value in addonInfo['description'].iteritems():
-        if key is not 'en-US':
+        if key != 'en-US':
+            # Making sure _locales folder exists
+            try:
+                os.mkdir(destinationFolder + '/_locales')
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
+                pass
             listInfoStore(key, addonInfo, destinationFolder + '/_locales/' + key.replace('-','_'))
 
     # Cleaning any remaining 'en' or 'en_US' folders
