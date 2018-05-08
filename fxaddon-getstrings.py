@@ -8,7 +8,7 @@ usage:          python fxaddon-getstrings.py
 license:        MPL 2.0
 '''
 
-import os, errno, requests, zipfile, json
+import os, errno, requests, zipfile, json, shutil
 import config
 
 # List here all the urls for the addons you want to fetch
@@ -45,9 +45,9 @@ def getInfo(url):
 
     id = addonData['slug']
     link = addonData['current_version']['files'][0]['url']
-    title = addonData['name']['en-US']
-    description = addonData['description']['en-US']
-    summary = addonData['summary']['en-US']
+    title = addonData['name']
+    description = addonData['description']
+    summary = addonData['summary']
 
     return {
         'link': link,
@@ -56,6 +56,33 @@ def getInfo(url):
         'description': description,
         'summary': summary,
     }
+
+def listInfoStore(locale, addonInfo, folder):
+    # Storing the English strings from AMO
+    listingInfo = {
+        'name': {
+            'message': addonInfo['title'][locale]
+        },
+        'description': {
+            'message': addonInfo['description'][locale]
+        },
+        'summary': {
+            'message': addonInfo['summary'][locale]
+        }
+    }
+
+    listingInfo = json.dumps(listingInfo, indent=4, ensure_ascii=False).encode('utf8')
+
+    # Let's make sure destination folder exists
+    try:
+        os.mkdir(folder)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
+        pass
+
+    with open(folder + '/amo-listing.json', 'wb') as f:
+        f.write(listingInfo)
 
 for a in addons:
     # We store locales in a set to avoid duplicates as a result of reading folders
@@ -80,7 +107,7 @@ for a in addons:
             raise
         pass
 
-    # Extract English strings
+    # Identify English strings location
     if '_locales/en/messages.json' in xpifile.namelist():
         messagesFile = '_locales/en/messages.json'
     elif '_locales/en_US/messages.json' in xpifile.namelist():
@@ -96,22 +123,16 @@ for a in addons:
                 xpifile.extract(file, destinationFolder)
 
         os.rename(destinationFolder + '/' + messagesFile, destinationFolder + '/messages.json')
-        os.removedirs(destinationFolder + '/' + messagesFile.replace('messages.json', ''))
 
-    # Storing the English strings from AMO
-    listingInfo = {
-        'name': {
-            'message': addonInfo['title']
-        },
-        'description': {
-            'message': addonInfo['description']
-        },
-        'summary': {
-            'message': addonInfo['summary']
-        }
-    }
+    # Sotring AMO listing information
+    listInfoStore('en-US', addonInfo, destinationFolder)
 
-    listingInfo = json.dumps(listingInfo, indent=4, ensure_ascii=False).encode('utf8')
+    # Storing existing localizations from AMO listing
+    # For each locale we create a json in the folder
+    for key, value in addonInfo['description'].iteritems():
+        if key is not 'en-US':
+            listInfoStore(key, addonInfo, destinationFolder + '/_locales/' + key.replace('-','_'))
 
-    with open(destinationFolder + '/amo-listing.json', 'wb') as f:
-        f.write(listingInfo)
+    # Cleaning any remaining 'en' or 'en_US' folders
+    shutil.rmtree(destinationFolder + '/_locales/' + 'en/', ignore_errors=True)
+    shutil.rmtree(destinationFolder + '/_locales/' + 'en_US/', ignore_errors=True)
